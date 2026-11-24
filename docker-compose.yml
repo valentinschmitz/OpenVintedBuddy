@@ -1,0 +1,18 @@
+services:
+  mariadb:
+    image: mariadb:11.4
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: openvintedbuddy
+      MARIADB_USER: ovb
+      MARIADB_PASSWORD: ${DB_PASSWORD:-ovb_local_change_me}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root_local_change_me}
+    ports: ["127.0.0.1:3306:3306"]
+    volumes: ["mariadb_data:/var/lib/mysql", "./database/schema.sql:/docker-entrypoint-initdb.d/001-schema.sql:ro"]
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+volumes:
+  mariadb_data:
